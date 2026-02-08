@@ -1,0 +1,247 @@
+openapi: 3.0.3
+info:
+  title: FastAPI Todo Backend
+  description: Secure Todo application backend with JWT authentication and user isolation
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Development server
+paths:
+  /api/{user_id}/tasks:
+    get:
+      summary: Get all tasks for a specific user
+      description: Retrieve all tasks associated with the specified user_id, requiring valid JWT authentication
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user whose tasks to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User attempting to access another user's tasks
+      security:
+        - bearerAuth: []
+    post:
+      summary: Create a new task for a user
+      description: Create a new task associated with the specified user_id, requiring valid JWT authentication
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user creating the task
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+      responses:
+        '201':
+          description: Task successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User attempting to create task for another user
+        '422':
+          description: Unprocessable Entity - Invalid input data
+      security:
+        - bearerAuth: []
+  /api/{user_id}/tasks/{id}:
+    put:
+      summary: Update a specific task
+      description: Update details of a specific task, requiring valid JWT authentication and ownership verification
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user who owns the task
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: The ID of the task to update
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+      responses:
+        '200':
+          description: Task successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User attempting to update another user's task
+        '404':
+          description: Task not found
+        '422':
+          description: Unprocessable Entity - Invalid input data
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Delete a specific task
+      description: Delete a specific task, requiring valid JWT authentication and ownership verification
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user who owns the task
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: The ID of the task to delete
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Task successfully deleted
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User attempting to delete another user's task
+        '404':
+          description: Task not found
+      security:
+        - bearerAuth: []
+  /api/{user_id}/tasks/{id}/complete:
+    patch:
+      summary: Toggle task completion status
+      description: Toggle the completion status of a specific task, requiring valid JWT authentication and ownership verification
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user who owns the task
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: The ID of the task to update
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task completion status successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User attempting to update another user's task
+        '404':
+          description: Task not found
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - user_id
+        - title
+        - completed
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the task
+          example: 1
+        user_id:
+          type: string
+          description: ID of the user who owns this task
+          example: "user-uuid-here"
+        title:
+          type: string
+          description: Title of the task
+          example: "Complete project proposal"
+        description:
+          type: string
+          description: Optional description of the task
+          example: "Finish writing the project proposal document for client review"
+        completed:
+          type: boolean
+          description: Whether the task is completed
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: When the task was created
+          example: "2023-10-20T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: When the task was last updated
+          example: "2023-10-20T10:30:00Z"
+    TaskCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Title of the task (required)
+          example: "Complete project proposal"
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          description: Optional description of the task
+          example: "Finish writing the project proposal document for client review"
+          maxLength: 1000
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Updated title of the task
+          example: "Complete project proposal"
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          description: Updated description of the task
+          example: "Finish writing the project proposal document for client review"
+          maxLength: 1000
+        completed:
+          type: boolean
+          description: Updated completion status
+          example: true

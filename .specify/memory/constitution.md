@@ -1,55 +1,66 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: 1.0.0 → 1.1.0
+- Modified principles: All 6 principles completely redefined for Hackathon II Todo App
+- Added sections: Technical Stack Sovereignty, Security & Authentication, Database & Data Integrity, Frontend Guidelines
+- Removed sections: None (completely replaced template)
+- Templates requiring updates: ⚠ pending - .specify/templates/plan-template.md, .specify/templates/spec-template.md, .specify/templates/tasks-template.md
+- Follow-up TODOs: None
+-->
+
+# Hackathon II Todo App Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Full-Stack Integration
+All implementation must strictly follow the designated technology stack: Next.js 16+ (App Router), TypeScript, Tailwind CSS for frontend; Python FastAPI, SQLModel (ORM) for backend; Neon Serverless PostgreSQL for database; Better Auth with JWT Bridge for authentication.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Spec-First Protocol
+Before any code change, read the relevant specification in `/specs/`. If a feature is not in the specs, do not implement it. If code and specs conflict, the specs (@specs/) always win.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Monorepo Discipline
+Maintain strict separation between `/frontend` and `/backend`. Use the root `CLAUDE.md` as the primary project map. NO code implementation outside of specified `/frontend` or `/backend` directories.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### JWT Bridge Security
+Implement shared secret authentication using `BETTER_AUTH_SECRET` in both stacks for JWT signing and verification. Backend middleware must intercept headers, verify `Authorization: Bearer <token>`, and decode the payload. EVERY database query must be filtered by the `user_id` extracted from the JWT. Cross-user data access is a critical security failure.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Statelessness
+The backend must remain stateless. Do not store session data in memory; rely on the JWT and database. Return a 401 Unauthorized response for any request without a valid token.
 
-### [PRINCIPLE_6_NAME]
+### SQLModel Data Integrity
+Use SQLModel for all database operations and Pydantic validation. Tables must match `@specs/database/schema.md` exactly, including foreign key relationships (tasks.user_id -> users.id).
 
+## Technical Stack Sovereignty
+- **Frontend:** Next.js 16+ (App Router), TypeScript, Tailwind CSS.
+- **Backend:** Python FastAPI, SQLModel (ORM).
+- **Database:** Neon Serverless PostgreSQL.
+- **Authentication:** Better Auth (Frontend) with JWT Bridge (Backend).
+- NO deviation from the RESTful API endpoint structure defined in the project document.
 
-[PRINCIPLE__DESCRIPTION]
+## Security & Authentication
+- **Shared Secret:** Use `BETTER_AUTH_SECRET` in both stacks for JWT signing and verification.
+- **Backend Middleware:** Implement a security dependency in FastAPI to intercept headers, verify `Authorization: Bearer <token>`, and decode the payload.
+- **User Isolation:** EVERY database query must be filtered by the `user_id` extracted from the JWT. Cross-user data access is a critical security failure.
+- **Unauthorized Access:** Return a 401 Unauthorized response for any request without a valid token.
+- NO hardcoded secrets. Use environment variables.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Database & Data Integrity
+- **SQLModel Usage:** Use SQLModel for all database operations and Pydantic validation.
+- **Schema Mapping:** Tables must match `@specs/database/schema.md` exactly, including foreign key relationships (tasks.user_id -> users.id).
+- **Statelessness:** The backend must remain stateless. Do not store session data in memory; rely on the JWT and database.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Frontend Guidelines
+- **App Router:** Follow Next.js 16 conventions (loading.tsx, error.tsx, layout.tsx).
+- **API Client:** All requests must pass through a centralized API client in `lib/api.ts` that attaches the JWT token automatically.
+- **UX Standards:** Implement "Optimistic UI" updates where possible and ensure 100% responsive design using Tailwind CSS.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Workflow
+1. **Analyze:** Read the feature spec: `@specs/features/[feature].md`.
+2. **Draft:** Plan changes in the Backend first, then the Frontend.
+3. **Execute:** Implement logic following the sub-directory `CLAUDE.md` guidelines.
+4. **Test:** Verify user isolation and error states.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+As a Lead Full-Stack Engineer and Architect, you must execute Phase II: "Full-Stack Web Application" with a strict Spec-Driven Development (SDD) approach. You must ensure seamless integration between the Next.js frontend, FastAPI backend, and Neon PostgreSQL database. All changes must be verified for compliance with these principles.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.1.0 | **Ratified**: 2026-01-30 | **Last Amended**: 2026-01-30
