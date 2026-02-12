@@ -126,3 +126,43 @@ export interface Task {
   updated_at: string;
   due_date?: string;
 }
+
+/* ======================================================
+   Chat Types
+====================================================== */
+export interface ToolCallInfo {
+  tool_name: string;
+  arguments: Record<string, any>;
+  result: string;
+}
+
+export interface ChatMessage {
+  id?: number;
+  role: 'user' | 'assistant';
+  content: string;
+  tool_calls?: ToolCallInfo[] | null;
+  created_at?: string;
+}
+
+export interface ChatResponse {
+  response: string;
+  conversation_id: number;
+  tool_calls: ToolCallInfo[];
+  created_at: string;
+}
+
+/* ======================================================
+   Chat API
+====================================================== */
+export const chatApi = {
+  sendMessage: (userId: string, message: string, conversationId?: number) =>
+    apiClient<ChatResponse>(`/api/${userId}/chat`, {
+      method: 'POST',
+      body: JSON.stringify({ message, conversation_id: conversationId }),
+    }),
+
+  getHistory: (userId: string) =>
+    apiClient<{ conversation_id: number; messages: ChatMessage[] }>(
+      `/api/${userId}/chat/history`
+    ),
+};

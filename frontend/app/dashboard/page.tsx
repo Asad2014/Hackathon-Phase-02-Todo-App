@@ -48,6 +48,17 @@ export default function DashboardPage() {
     fetchTasks();
   }, [sessionData, sessionLoading, router]);
 
+  // Listen for tasks-updated events from the chat panel
+  useEffect(() => {
+    const handler = () => {
+      if (sessionData?.user?.id) {
+        tasksApi.getAll(sessionData.user.id).then(setTasks).catch(console.error);
+      }
+    };
+    window.addEventListener('tasks-updated', handler);
+    return () => window.removeEventListener('tasks-updated', handler);
+  }, [sessionData]);
+
   const handleTaskCreated = (newTask: Task) => {
     setTasks(prev => {
       // Filter out any existing tasks with the same ID to prevent duplicates

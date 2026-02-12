@@ -45,3 +45,35 @@ class ValidationErrorResponse(ErrorResponse):
     error: str = "validation_error"
     message: str
     details: dict
+
+
+# ======================================================
+# Chat Schemas
+# ======================================================
+class ChatRequest(BaseModel):
+    message: str
+    conversation_id: Optional[int] = None
+
+
+class ToolCallInfo(BaseModel):
+    tool_name: str
+    arguments: dict
+    result: str
+
+
+class ChatResponse(BaseModel):
+    response: str
+    conversation_id: int
+    tool_calls: list[ToolCallInfo]
+    created_at: datetime
+
+
+class MessageResponse(BaseModel):
+    id: int
+    role: str
+    content: str
+    tool_calls: Optional[list[ToolCallInfo]] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

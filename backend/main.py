@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import routes
-from routes import tasks, auth
+from routes import tasks, auth, chat
 from exceptions import ValidationException
 
 app = FastAPI(title="FastAPI Todo Backend", version="1.0.0")
@@ -73,6 +73,7 @@ async def custom_validation_exception_handler(request, exc):
 # Routes
 # ======================================================
 app.include_router(tasks.router, prefix="/api/{user_id}", tags=["tasks"])
+app.include_router(chat.router, prefix="/api/{user_id}", tags=["chat"])
 app.include_router(auth.router, tags=["auth"])  # auth routes already have /auth prefix in the router definition
 
 
